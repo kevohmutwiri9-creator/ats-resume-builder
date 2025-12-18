@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Builder | ATS Resume Builder</title>
+  <meta name="description" content="Build an ATS-friendly resume. Autosave, templates, and PDF export." />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="builder-body">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="./index.html">ATS Resume Builder</a>
+      <nav class="nav">
+        <a class="active" href="./builder.html">Resume</a>
+        <a href="./cover-letter.html">Cover Letter</a>
+        <a href="./ats.html">ATS Checker</a>
+        <a href="./guides/index.html">Guides</a>
+        <a href="./templates.html">Templates</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container builder-layout">
+    <aside class="panel">
+      <div class="panel-header">
+        <h1 class="panel-title">Resume Builder</h1>
+        <div class="panel-subtitle muted">Autosave is on. Export as PDF anytime.</div>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn btn-primary" id="exportPdfBtn" type="button">Export PDF</button>
+        <button class="btn btn-ghost" id="resetBtn" type="button">Reset</button>
+      </div>
+
+      <div class="field">
+        <label for="template">Template</label>
+        <select id="template">
+          <option value="clean">Clean (ATS)</option>
+          <option value="modern">Modern</option>
+          <option value="compact">Compact</option>
+          <option value="executive">Executive</option>
+        </select>
+      </div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="fullName">Full name</label>
+          <input id="fullName" type="text" placeholder="Jane Doe" autocomplete="name" />
+        </div>
+        <div class="field">
+          <label for="headline">Headline</label>
+          <input id="headline" type="text" placeholder="Backend Engineer | Node.js | PostgreSQL" />
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" placeholder="jane@email.com" autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input id="phone" type="tel" placeholder="+1 555 123 4567" autocomplete="tel" />
+        </div>
+        <div class="field">
+          <label for="location">Location</label>
+          <input id="location" type="text" placeholder="City, Country" autocomplete="address-level2" />
+        </div>
+        <div class="field">
+          <label for="links">Links</label>
+          <input id="links" type="text" placeholder="LinkedIn | GitHub | Portfolio" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="summary">Professional summary</label>
+        <textarea id="summary" rows="5" placeholder="2–4 lines. Quantify impact. Include target role keywords."></textarea>
+      </div>
+
+      <div class="section-header">
+        <h2>Experience</h2>
+        <div class="section-actions">
+          <button class="btn btn-ghost" id="expAddBtn" type="button">Add</button>
+        </div>
+      </div>
+      <div id="experienceList" class="item-list"></div>
+
+      <div class="section-header">
+        <h2>Education</h2>
+        <div class="section-actions">
+          <button class="btn btn-ghost" id="eduAddBtn" type="button">Add</button>
+        </div>
+      </div>
+      <div id="educationList" class="item-list"></div>
+
+      <div class="section-header">
+        <h2>Skills</h2>
+        <div class="section-actions">
+          <button class="btn btn-ghost" id="skillAddBtn" type="button">Add</button>
+        </div>
+      </div>
+      <div id="skillsList" class="pill-list"></div>
+
+      <div class="ad-slot" aria-label="Ad slot placeholder">
+        <div class="ad-label">Ad</div>
+        <div class="ad-box">AdSense Placeholder</div>
+      </div>
+
+      <div class="muted tiny">Tip: Keep layout simple. Avoid tables, icons, and heavy graphics to stay ATS-friendly.</div>
+    </aside>
+
+    <section class="preview" aria-label="Resume preview">
+      <div class="preview-top">
+        <div class="preview-title">Preview</div>
+        <div class="muted tiny" id="saveStatus">Saved</div>
+      </div>
+
+      <article class="paper" id="paper">
+        <header class="resume-header">
+          <h1 class="name" id="pName">Your Name</h1>
+          <div class="headline" id="pHeadline"></div>
+          <div class="contact" id="pContact"></div>
+        </header>
+
+        <section class="resume-section" id="pSummaryWrap">
+          <h2>Summary</h2>
+          <div class="text" id="pSummary"></div>
+        </section>
+
+        <section class="resume-section" id="pExpWrap">
+          <h2>Experience</h2>
+          <div id="pExperience"></div>
+        </section>
+
+        <section class="resume-section" id="pEduWrap">
+          <h2>Education</h2>
+          <div id="pEducation"></div>
+        </section>
+
+        <section class="resume-section" id="pSkillsWrap">
+          <h2>Skills</h2>
+          <div class="skills" id="pSkills"></div>
+        </section>
+      </article>
+
+      <div class="print-hint muted tiny">Export uses your browser Print dialog. Choose “Save as PDF”.</div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="muted">© <span id="year"></span> ATS Resume Builder</div>
+      <div class="footer-links">
+        <a href="./privacy.html">Privacy</a>
+        <a href="./terms.html">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./site.js"></script>
+  <script src="./builder.js"></script>
+</body>
+</html>
