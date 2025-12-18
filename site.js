@@ -19,6 +19,16 @@
     document.head.appendChild(link);
   }
 
+  function ensureAdsenseMeta(){
+    if(document.querySelector('meta[name="google-adsense-account"]')) return;
+    var cfg=window.ADSENSE_CONFIG;
+    if(!cfg || !cfg.publisherId) return;
+    var meta=document.createElement('meta');
+    meta.name='google-adsense-account';
+    meta.content=cfg.publisherId;
+    document.head.appendChild(meta);
+  }
+
   var CONSENT_KEY='site_consent_v1';
   function getConsent(){
     try{
@@ -67,6 +77,7 @@
     var s=document.createElement('script');
     s.src=src;
     s.async=true;
+    s.crossOrigin='anonymous';
     s.onload=function(){ if(onload) onload(); };
     s.onerror=function(){ if(onload) onload(new Error('failed')); };
     document.head.appendChild(s);
@@ -96,16 +107,26 @@
     }
 
     if(window.ADSENSE_CONFIG){
+      ensureAdsenseMeta();
       start();
       return;
     }
 
     loadScript(pathFor('adsense-config.js'), function(){
+      ensureAdsenseMeta();
       start();
     });
   }
 
   ensureFavicon();
+
+  if(window.ADSENSE_CONFIG){
+    ensureAdsenseMeta();
+  } else {
+    loadScript(pathFor('adsense-config.js'), function(){
+      ensureAdsenseMeta();
+    });
+  }
 
   var consent=getConsent();
   if(!consent){
