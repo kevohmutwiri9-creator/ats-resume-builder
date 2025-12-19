@@ -104,25 +104,75 @@ function saveState(state) {
 
 function setSaveStatus(text) {
   const el = $('saveStatus');
-  if (el) el.textContent = text;
+  if (el) {
+    el.textContent = text;
+    el.className = text === 'Saved' ? 'muted tiny' : 'muted tiny saving';
+  }
+}
+
+function validateField(field, value, type) {
+  const trimmed = (value || '').trim();
+  if (!trimmed) return true; // Allow empty fields
+
+  switch (type) {
+    case 'email':
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(trimmed);
+    case 'phone':
+      const phoneRegex = /^[\+]?[\d\s\(\)\-\.]{7,}$/;
+      return phoneRegex.test(trimmed);
+    default:
+      return true;
+  }
+}
+
+function showFieldError(fieldId, message) {
+  const field = $(fieldId);
+  if (!field) return;
+
+  field.style.borderColor = 'var(--danger)';
+  field.style.boxShadow = '0 0 0 3px rgba(255,77,109,0.18)';
+
+  // Remove existing error message
+  const existingError = field.parentNode.querySelector('.field-error');
+  if (existingError) existingError.remove();
+
+  const errorEl = document.createElement('div');
+  errorEl.className = 'field-error';
+  errorEl.textContent = message;
+  errorEl.style.color = 'var(--danger)';
+  errorEl.style.fontSize = '12px';
+  errorEl.style.marginTop = '4px';
+  field.parentNode.appendChild(errorEl);
+
+  setTimeout(() => {
+    field.style.borderColor = '';
+    field.style.boxShadow = '';
+    if (errorEl.parentNode) errorEl.remove();
+  }, 3000);
 }
 
 function bindBasicFields(state) {
   const map = [
     ['fullName', 'fullName'],
     ['headline', 'headline'],
-    ['email', 'email'],
-    ['phone', 'phone'],
+    ['email', 'email', 'email'],
+    ['phone', 'phone', 'phone'],
     ['location', 'location'],
     ['links', 'links'],
     ['summary', 'summary']
   ];
 
-  for (const [id, key] of map) {
+  for (const [id, key, type] of map) {
     const el = $(id);
     el.value = state[key] || '';
     el.addEventListener('input', () => {
-      state[key] = el.value;
+      const value = el.value;
+      if (type && !validateField(id, value, type)) {
+        showFieldError(id, `Invalid ${type} format`);
+        return;
+      }
+      state[key] = value;
       persist(state);
       render(state);
     });
