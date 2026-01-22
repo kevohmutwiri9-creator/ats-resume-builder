@@ -58,8 +58,8 @@ self.addEventListener('fetch', (event) => {
           return response;
         }
 
-        // Network request
-        return fetch(event.request).then((response) => {
+        // Network request with proper redirect handling
+        return fetch(event.request, { redirect: 'follow' }).then((response) => {
           // Check if valid response
           if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;

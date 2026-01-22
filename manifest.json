@@ -18,7 +18,7 @@
       "url": "/builder.html",
       "icons": [
         {
-          "src": "/icons/resume-96.png",
+          "src": "/icons/icon-96.png",
           "sizes": "96x96"
         }
       ]
@@ -30,7 +30,7 @@
       "url": "/cover-letter.html",
       "icons": [
         {
-          "src": "/icons/letter-96.png",
+          "src": "/icons/icon-96.png",
           "sizes": "96x96"
         }
       ]
@@ -42,7 +42,7 @@
       "url": "/ats.html",
       "icons": [
         {
-          "src": "/icons/ats-96.png",
+          "src": "/icons/icon-96.png",
           "sizes": "96x96"
         }
       ]
@@ -89,22 +89,6 @@
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshots/desktop-1.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Resume builder interface"
-    },
-    {
-      "src": "/screenshots/mobile-1.png",
-      "sizes": "375x667",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Mobile resume builder"
     }
   ],
   "related_applications": [],
