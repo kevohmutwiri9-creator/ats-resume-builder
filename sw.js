@@ -11,6 +11,8 @@ const urlsToCache = [
   '/about.html',
   '/privacy.html',
   '/terms.html',
+  '/examples.html',
+  '/interview.html',
   '/styles.css',
   '/ai-chat.css',
   '/cookie-consent.css',
@@ -24,13 +26,14 @@ const urlsToCache = [
   '/ai-greeter.js',
   '/ai-chat.js',
   'web-search.js',
-  '/cookie-consent.js',
-  '/analytics.js',
-  '/adsense-config.js',
-  '/resume-import.js',
+  'cookie-consent.js',
+  'analytics.js',
+  'adsense-config.js',
+  'resume-import.js',
   '/i18n.js',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+  '/icons/icon-96.svg',
+  '/icons/icon-192.svg',
+  '/icons/icon-512.svg',
   '/favicon.svg'
 ];
 
@@ -210,8 +213,8 @@ async function sendAnalyticsEvent(data) {
 self.addEventListener('push', (event) => {
   const options = {
     body: event.data.text(),
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-72.png',
+    icon: '/icons/icon-192.svg',
+    badge: '/icons/icon-96.svg',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -221,12 +224,12 @@ self.addEventListener('push', (event) => {
       {
         action: 'explore',
         title: 'Open App',
-        icon: '/icons/checkmark.png'
+        icon: '/icons/icon-96.svg'
       },
       {
         action: 'close',
         title: 'Close',
-        icon: '/icons/xmark.png'
+        icon: '/icons/icon-96.svg'
       }
     ]
   };
