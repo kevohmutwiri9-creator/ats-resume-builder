@@ -87,6 +87,34 @@ function defaultState() {
   };
 }
 
+// Template configurations
+const TEMPLATES = {
+  clean: {
+    name: 'Clean (Default)',
+    description: 'Single column, plain headings, consistent spacing. Best for ATS parsing.',
+    cssFile: null,
+    class: ''
+  },
+  modern: {
+    name: 'Modern',
+    description: 'Contemporary design with gradient headers and card-based layout.',
+    cssFile: './templates-modern.css',
+    class: 'modern-template'
+  },
+  executive: {
+    name: 'Executive',
+    description: 'Professional design with classic typography and formal styling.',
+    cssFile: './templates-executive.css',
+    class: 'executive-template'
+  },
+  creative: {
+    name: 'Creative',
+    description: 'Vibrant design with colorful elements and modern typography.',
+    cssFile: './templates-creative.css',
+    class: 'creative-template'
+  }
+};
+
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -508,10 +536,92 @@ function attachButtons(state) {
   });
 }
 
+// Template switching functionality
+function switchTemplate(templateKey) {
+  const template = TEMPLATES[templateKey];
+  if (!template) return;
+
+  // Remove existing template CSS
+  document.querySelectorAll('link[data-template-css]').forEach(link => {
+    link.remove();
+  });
+
+  // Remove existing template classes from body
+  document.body.classList.remove('modern-template', 'executive-template', 'creative-template');
+
+  // Add new template CSS if needed
+  if (template.cssFile) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = template.cssFile;
+    link.setAttribute('data-template-css', 'true');
+    document.head.appendChild(link);
+  }
+
+  // Add template class to body
+  if (template.class) {
+    document.body.classList.add(template.class);
+  }
+
+  // Update state
+  state.template = templateKey;
+  persist(state);
+
+  // Track template change
+  if (typeof Analytics !== 'undefined') {
+    Analytics.trackTemplate(template.name, 'switch');
+  }
+
+  showToast(`Switched to ${template.name} template`, 'success');
+}
+
+function renderTemplateSelector() {
+  const selector = $('templateSelector');
+  if (!selector) return;
+
+  selector.innerHTML = Object.keys(TEMPLATES).map(key => {
+    const template = TEMPLATES[key];
+    const isActive = state.template === key;
+    return `
+      <div class="template-option ${isActive ? 'active' : ''}" data-template="${key}">
+        <div class="template-info">
+          <h4>${template.name}</h4>
+          <p>${template.description}</p>
+        </div>
+        <div class="template-preview">
+          <div class="mini-preview ${template.class}">
+            <div class="mini-header"></div>
+            <div class="mini-content">
+              <div class="mini-line"></div>
+              <div class="mini-line short"></div>
+              <div class="mini-line"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Add click handlers
+  selector.querySelectorAll('.template-option').forEach(option => {
+    option.addEventListener('click', () => {
+      const templateKey = option.getAttribute('data-template');
+      switchTemplate(templateKey);
+      
+      // Update active state
+      selector.querySelectorAll('.template-option').forEach(opt => {
+        opt.classList.remove('active');
+      });
+      option.classList.add('active');
+    });
+  });
+}
+
 (function init() {
   const state = loadState();
   bindBasicFields(state);
   attachButtons(state);
   render(state);
+  renderTemplateSelector();
   setSaveStatus('Saved');
 })();

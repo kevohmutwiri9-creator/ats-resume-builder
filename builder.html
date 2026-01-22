@@ -10,6 +10,9 @@
      crossorigin="anonymous"></script>
   <link rel="stylesheet" href="./styles.css" />
   <link rel="stylesheet" href="./ai-chat.css" />
+  <link rel="stylesheet" href="./cookie-consent.css" />
+  <link rel="stylesheet" href="./resume-import.css" />
+  <link rel="stylesheet" href="./cloud-storage.css" />
 </head>
 <body class="builder-body">
   <header class="site-header">
@@ -42,29 +45,8 @@
       </div>
 
       <div class="field">
-        <label for="template">Template</label>
-        <select id="template">
-          <optgroup label="General">
-            <option value="clean">Clean (ATS)</option>
-            <option value="modern">Modern</option>
-            <option value="compact">Compact</option>
-            <option value="executive">Executive</option>
-          </optgroup>
-          <optgroup label="Industry Specific">
-            <option value="tech">Tech Professional</option>
-            <option value="creative">Creative</option>
-            <option value="academic">Academic</option>
-            <option value="finance">Finance</option>
-            <option value="healthcare">Healthcare</option>
-            <option value="sales">Sales & Marketing</option>
-          </optgroup>
-          <optgroup label="Specialized">
-            <option value="minimalist">Minimalist</option>
-            <option value="bold">Bold & Colorful</option>
-            <option value="elegant">Elegant</option>
-            <option value="startup">Startup</option>
-          </optgroup>
-        </select>
+        <label>Resume Template</label>
+        <div id="templateSelector" class="template-selector"></div>
       </div>
 
       <div class="form-grid">
@@ -212,7 +194,12 @@
   <script src="./ai-assist.js"></script>
   <script src="./ai-greeter.js"></script>
   <script src="./ai-chat.js"></script>
+  <script src="./resume-import.js"></script>
+  <script src="./cloud-storage.js"></script>
+  <script src="./onboarding.js"></script>
   <script src="./site.js"></script>
   <script src="./builder.js"></script>
+  <script src="./i18n.js"></script>
+  <script src="./pwa.js"></script>
 </body>
 </html>

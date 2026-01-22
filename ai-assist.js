@@ -73,9 +73,19 @@ class AIAssistant {
       let suggestions = await this.generateSuggestions(prompt);
       
       this.displaySuggestions(suggestions, action);
+      
+      // Track AI usage
+      if (typeof Analytics !== 'undefined') {
+        Analytics.trackAI(action, 'generate');
+      }
     } catch (error) {
       console.error('AI Assistant error:', error);
       this.showError('Unable to generate suggestions. Please try again.');
+      
+      // Track AI errors
+      if (typeof Analytics !== 'undefined') {
+        Analytics.trackError('AI Assistant: ' + error.message, 'ai-assist');
+      }
     }
   }
 
@@ -287,12 +297,12 @@ Education: ${data.education.map(e => `${e.degree} from ${e.school}`).join('\n')}
             explanation: 'Added specific numbers and technical details'
           },
           {
-            text: '• Led team of 4 engineers to redesign customer dashboard, resulting in 35% increase in user engagement and 25% reduction in support tickets',
-            explanation: 'Included team leadership and business impact metrics'
+            text: '• Optimized database queries and implemented caching strategies, reducing API response times by 45% and improving user experience',
+            explanation: 'Quantified impact and focused on user benefit'
           },
           {
-            text: '• Optimized database queries and implemented caching strategies, reducing API response times by 60% and cutting server costs by $2K/month',
-            explanation: 'Quantified performance improvements and cost savings'
+            text: '• Led a team of 4 engineers to redesign authentication system, decreasing security vulnerabilities by 90% and improving login conversion by 25%',
+            explanation: 'Added leadership context and security metrics'
           }
         ]
       };
@@ -303,16 +313,16 @@ Education: ${data.education.map(e => `${e.degree} from ${e.school}`).join('\n')}
         title: 'Recommended Skills',
         items: [
           {
-            text: 'Technical Skills: React, Node.js, TypeScript, PostgreSQL, MongoDB, Docker, AWS, Git, CI/CD',
-            explanation: 'Core technologies for modern web development'
+            text: 'Technical Skills: Docker, Kubernetes, AWS, GraphQL, TypeScript, CI/CD, Microservices, Redis',
+            explanation: 'In-demand technical skills for modern development roles'
           },
           {
-            text: 'Soft Skills: Agile/Scrum, Cross-functional Leadership, Code Review, Technical Writing, Problem Solving',
-            explanation: 'Essential professional skills for team collaboration'
+            text: 'Soft Skills: Agile/Scrum, Code Review, Mentoring, Cross-functional Communication, Project Management',
+            explanation: 'Essential soft skills for career advancement'
           },
           {
-            text: 'Advanced Skills: System Design, Performance Optimization, Security Best Practices, Microservices Architecture',
-            explanation: 'Senior-level competencies that add value'
+            text: 'Advanced Skills: System Design, Performance Optimization, Security Best Practices, Cloud Architecture',
+            explanation: 'Senior-level skills that differentiate top candidates'
           }
         ]
       };
@@ -323,28 +333,38 @@ Education: ${data.education.map(e => `${e.degree} from ${e.school}`).join('\n')}
         title: 'Tailoring Recommendations',
         items: [
           {
-            text: 'Summary: Emphasize cloud experience and DevOps skills to match the job\'s focus on scalable infrastructure',
-            explanation: 'Align your core message with their primary requirements'
+            text: 'Add keywords from job description: "scalable architecture", "cloud-native", "DevOps practices"',
+            explanation: 'Include specific terms mentioned in the job posting'
           },
           {
-            text: 'Experience: Highlight AWS projects and system design work. Move relevant projects to the top of your experience section',
-            explanation: 'Prioritize most relevant experience'
+            text: 'Highlight experience with required technologies: AWS, Docker, and microservices architecture',
+            explanation: 'Emphasize your most relevant technical experience'
           },
           {
-            text: 'Skills: Add Docker, Kubernetes, and Terraform to your skills list - these appear frequently in the job description',
-            explanation: 'Include keywords from their requirements'
+            text: 'Quantify achievements that match job requirements: "improved system performance by 40%" aligns with performance optimization focus',
+            explanation: 'Connect your accomplishments to their needs'
           },
           {
-            text: 'Keywords: Incorporate terms like "cloud-native," "microservices," "CI/CD pipeline," and "infrastructure as code" throughout your resume',
-            explanation: 'Improve ATS keyword matching'
+            text: 'Adjust summary to reflect company values: innovation, scalability, and team collaboration',
+            explanation: 'Show alignment with company culture and mission'
           }
         ]
       };
     }
     
+    // Default fallback
     return {
-      title: 'Suggestions',
-      items: [{ text: 'AI suggestions will appear here', explanation: 'Processing your request...' }]
+      title: 'AI Suggestions',
+      items: [
+        {
+          text: 'Consider adding more quantifiable achievements to demonstrate impact',
+          explanation: 'Numbers and metrics make your experience more concrete'
+        },
+        {
+          text: 'Include industry-specific keywords to improve ATS matching',
+          explanation: 'Helps your resume get past automated screening'
+        }
+      ]
     };
   }
 
