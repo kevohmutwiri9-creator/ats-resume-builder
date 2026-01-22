@@ -63,8 +63,8 @@ self.addEventListener('fetch', (event) => {
           return response;
         }
 
-        // Network request with proper redirect handling
-        return fetch(event.request, { redirect: 'follow' }).then((response) => {
+        // Network request with manual redirect handling
+        return fetch(event.request).then((response) => {
           // Check if valid response
           if (!response || response.status === 0 || response.type === 'opaque') {
             return new Response('Network error', { status: 500 });
@@ -86,7 +86,8 @@ self.addEventListener('fetch', (event) => {
           
           return response;
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error('Network request failed:', error);
           // Network failed, try to serve from cache
           return caches.match(event.request);
         });

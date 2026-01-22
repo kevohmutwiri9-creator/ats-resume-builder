@@ -58,7 +58,10 @@ window.PWA = {
         })
         .catch((error) => {
           console.error('Service Worker registration failed:', error);
+          this.showToast('Service Worker registration failed', 'error');
         });
+    } else {
+      console.warn('Service Workers are not supported in this browser');
     }
   },
 

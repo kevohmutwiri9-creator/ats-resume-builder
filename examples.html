@@ -129,12 +129,12 @@
   <script src="./adsense-config.js"></script>
   <script src="./i18n.js"></script>
   <script src="./pwa.js"></script>
-  <script src="./resume-examples.js"></script>
-  
   <script>
     // Initialize examples page
     document.addEventListener('DOMContentLoaded', () => {
-      ResumeExamples.initExamplesPage();
+      if (typeof window.ResumeExamples !== 'undefined') {
+        window.ResumeExamples.initExamplesPage();
+      }
     });
   </script>
 </body>

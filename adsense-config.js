@@ -94,7 +94,7 @@ function initializeAllAds() {
 
 // Auto-initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-  // Wait for cookie consent
+  // Wait for cookie consent system to be ready
   setTimeout(initializeAllAds, 1000);
 });
 
