@@ -1,5 +1,6 @@
 // Service Worker for PWA functionality
-const CACHE_NAME = 'ats-resume-builder-v1';
+const CACHE_NAME = 'ats-resume-builder-v2';
+const VERSION = '2.0.0';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -39,11 +40,16 @@ const urlsToCache = [
 
 // Install event - cache resources
 self.addEventListener('install', (event) => {
+  console.log('Service Worker installing - version', VERSION);
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Opened cache');
         return cache.addAll(urlsToCache);
+      })
+      .then(() => {
+        // Force the new service worker to become active immediately
+        return self.skipWaiting();
       })
       .catch((error) => {
         console.error('Failed to cache resources:', error);
@@ -100,6 +106,7 @@ self.addEventListener('fetch', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+  console.log('Service Worker activating - version', VERSION);
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -110,6 +117,9 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
+    }).then(() => {
+      // Take control of all open pages
+      return self.clients.claim();
     })
   );
 });
