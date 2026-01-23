@@ -66,8 +66,13 @@ self.addEventListener('fetch', (event) => {
           return response;
         }
 
-        // Network request with manual redirect handling
-        return fetch(event.request).then((response) => {
+        // Network request with proper redirect handling
+        return fetch(event.request, { redirect: 'manual' }).then((response) => {
+          // Handle redirects manually
+          if (response.type === 'opaqueredirect' || response.status === 0) {
+            return fetch(event.request, { redirect: 'follow' });
+          }
+          
           // Check if valid response
           if (!response || response.status === 0 || response.type === 'opaque') {
             return new Response('Network error', { status: 500 });

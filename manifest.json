@@ -18,7 +18,7 @@
       "url": "/builder.html",
       "icons": [
         {
-          "src": "/icons/icon-96.png",
+          "src": "/icons/icon-96.svg",
           "sizes": "96x96"
         }
       ]
@@ -30,7 +30,7 @@
       "url": "/cover-letter.html",
       "icons": [
         {
-          "src": "/icons/icon-96.png",
+          "src": "/icons/icon-96.svg",
           "sizes": "96x96"
         }
       ]
@@ -42,7 +42,7 @@
       "url": "/ats.html",
       "icons": [
         {
-          "src": "/icons/icon-96.png",
+          "src": "/icons/icon-96.svg",
           "sizes": "96x96"
         }
       ]

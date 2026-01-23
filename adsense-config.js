@@ -35,8 +35,19 @@ window.adsenseConfig = {
 function initializeAds() {
   // Check if user has consented to cookies
   const cookieConsent = localStorage.getItem('cookieConsent');
-  if (cookieConsent !== 'accepted') {
-    console.log('AdSense blocked: No cookie consent');
+  let consentData = null;
+  
+  if (cookieConsent) {
+    try {
+      consentData = JSON.parse(cookieConsent);
+    } catch (e) {
+      console.error('Failed to parse cookie consent:', e);
+    }
+  }
+  
+  // Check if analytics category is enabled
+  if (!consentData || !consentData.categories || !consentData.categories.analytics) {
+    console.log('AdSense blocked: No cookie consent for analytics');
     return;
   }
 
