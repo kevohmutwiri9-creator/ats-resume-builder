@@ -12,5 +12,7 @@
   },
   "engines": {
     "node": "22.22.0"
-  }
+  },
+  "keywords": ["resume", "ats", "builder", "static-site"],
+  "license": "MIT"
 }

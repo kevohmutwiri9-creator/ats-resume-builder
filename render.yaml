@@ -1,6 +1,5 @@
-# Render.com Web Service Configuration
+# Render.com Static Site Configuration
 services:
-  # Static Site
   - type: web
     name: ats-resume-builder
     env: static
@@ -8,29 +7,6 @@ services:
     buildCommand: ""
     staticPublishPath: .
     
-    # Headers for proper content serving
-    headers:
-      - path: "/*.html"
-        headers:
-          - name: "Content-Type"
-            value: "text/html; charset=UTF-8"
-      - path: "/assets/*"
-        headers:
-          - name: "Cache-Control"
-            value: "public, max-age=31536000"
-      - path: "/*.css"
-        headers:
-          - name: "Cache-Control"
-            value: "public, max-age=31536000"
-      - path: "/*.js"
-        headers:
-          - name: "Cache-Control"
-            value: "public, max-age=31536000"
-      - path: "/icons/*"
-        headers:
-          - name: "Cache-Control"
-            value: "public, max-age=31536000"
-
 # Environment variables
 envVars:
   - key: NODE_ENV
