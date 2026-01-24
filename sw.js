@@ -1,6 +1,6 @@
 // Service Worker for PWA functionality
-const CACHE_NAME = 'ats-resume-builder-v2';
-const VERSION = '2.0.0';
+const CACHE_NAME = 'ats-resume-builder-v3';
+const VERSION = '3.0.0';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -57,52 +57,52 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Fetch event - serve from cache when offline
-self.addEventListener('fetch', (event) => {
-  // Skip chrome-extension requests
-  if (event.request.url.startsWith('chrome-extension://')) {
-    return new Response('Chrome extension requests are not supported', { status: 400 });
-  }
+// Fetch event - disabled to prevent redirect errors
+// self.addEventListener('fetch', (event) => {
+//   // Skip chrome-extension requests
+//   if (event.request.url.startsWith('chrome-extension://')) {
+//     return new Response('Chrome extension requests are not supported', { status: 400 });
+//   }
 
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
+//   event.respondWith(
+//     caches.match(event.request)
+//       .then((response) => {
+//         // Cache hit - return response
+//         if (response) {
+//           return response;
+//         }
 
-        // Network request - let browser handle redirects naturally
-        return fetch(event.request).then((response) => {
-          // Check if valid response
-          if (!response || response.status === 0 || response.type === 'opaque') {
-            return new Response('Network error', { status: 500 });
-          }
+//         // Network request - let browser handle redirects naturally
+//         return fetch(event.request).then((response) => {
+//           // Check if valid response
+//           if (!response || response.status === 0 || response.type === 'opaque') {
+//             return new Response('Network error', { status: 500 });
+//           }
 
-          // Clone response for caching
-          const responseToCache = response.clone();
+//           // Clone response for caching
+//           const responseToCache = response.clone();
           
-          // Only cache successful responses
-          if (response.ok && response.type === 'basic') {
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              })
-              .catch((error) => {
-                console.error('Failed to cache response:', error);
-              });
-          }
+//           // Only cache successful responses
+//           if (response.ok && response.type === 'basic') {
+//             caches.open(CACHE_NAME)
+//               .then((cache) => {
+//                 cache.put(event.request, responseToCache);
+//               })
+//               .catch((error) => {
+//                 console.error('Failed to cache response:', error);
+//               });
+//           }
           
-          return response;
-        })
-        .catch((error) => {
-          console.error('Network request failed:', error);
-          // Network failed, try to serve from cache
-          return caches.match(event.request);
-        });
-      })
-  );
-});
+//           return response;
+//         })
+//         .catch((error) => {
+//           console.error('Network request failed:', error);
+//           // Network failed, try to serve from cache
+//           return caches.match(event.request);
+//         });
+//       })
+//   );
+// });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
