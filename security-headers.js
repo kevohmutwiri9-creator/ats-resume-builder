@@ -7,7 +7,7 @@ window.SECURITY = {
       'style-src': ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       'font-src': ["'self'", "https://fonts.gstatic.com"],
       'img-src': ["'self'", "data:", "https:", "https://www.google-analytics.com"],
-      'connect-src': ["'self'", "https://www.google-analytics.com"],
+      'connect-src': ["'self'", "https://www.google-analytics.com", "https://ep1.adtrafficquality.google", "https://pagead2.googlesyndication.com"],
       'frame-src': ["'self'", "https://googleads.g.doubleclick.net"],
       'child-src': ["'self'", "https://googleads.g.doubleclick.net"]
     },
@@ -265,15 +265,27 @@ window.SECURITY = {
       document.head.appendChild(cspMeta);
     }
     
-    // Add other security meta tags
-    Object.keys(this.config.otherHeaders).forEach(header => {
+    // Add other security meta tags (only for headers that can be set via meta)
+    // Note: X-Frame-Options, Referrer-Policy, Permissions-Policy can only be set via HTTP headers
+    const metaEligibleHeaders = {
+      'X-Content-Type-Options': 'nosniff',
+      'X-XSS-Protection': '1; mode=block'
+    };
+    
+    Object.keys(metaEligibleHeaders).forEach(header => {
       if (!document.querySelector(`meta[http-equiv="${header}"]`)) {
         const meta = document.createElement('meta');
         meta.httpEquiv = header;
-        meta.content = this.config.otherHeaders[header];
+        meta.content = metaEligibleHeaders[header];
         document.head.appendChild(meta);
       }
     });
+    
+    // Log headers that should be set server-side
+    console.info('The following security headers should be set via HTTP headers on the server:');
+    console.info('- X-Frame-Options: DENY');
+    console.info('- Referrer-Policy: strict-origin-when-cross-origin');
+    console.info('- Permissions-Policy: camera=(), microphone=(), geolocation=()');
   }
 };
 

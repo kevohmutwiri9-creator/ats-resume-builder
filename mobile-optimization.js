@@ -224,6 +224,29 @@ window.MOBILE = {
     this.setupBackNavigation();
   },
 
+  // Setup back navigation
+  setupBackNavigation: function() {
+    // Handle browser back button on mobile
+    window.addEventListener('popstate', () => {
+      const overlay = document.querySelector('.mobile-nav-overlay');
+      if (overlay && overlay.classList.contains('active')) {
+        this.closeMobileMenu();
+      }
+    });
+
+    // Setup back button on mobile nav
+    const backBtn = document.querySelector('.mobile-nav-back');
+    if (backBtn) {
+      backBtn.addEventListener('click', () => {
+        if (history.length > 1) {
+          window.history.back();
+        } else {
+          window.location.href = 'index.html';
+        }
+      });
+    }
+  },
+
   // Create mobile navigation overlay
   createMobileNavOverlay: function() {
     // Check if already exists
