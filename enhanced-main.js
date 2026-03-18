@@ -472,7 +472,7 @@ window.APP = {
   // Show help
   showHelp: function() {
     if (window.PWA) {
-      PWA.showToast('📖 Help documentation coming soon!', 'info');
+      PWA.showToast('📖 Check out our comprehensive guides in the navigation menu!', 'info');
     }
   },
 
