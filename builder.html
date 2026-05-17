@@ -40,9 +40,9 @@
       <div class="toolbar">
         <button class="btn btn-primary" id="exportPdfBtn" type="button">Export PDF</button>
         <button class="btn btn-ghost" id="resetBtn" type="button">Reset</button>
-        <button class="btn btn-ghost" id="aiAssistBtn" type="button">
+        <button class="btn btn-ghost premium-lock" id="aiAssistBtn" type="button">
           <img src="./ai-icon.svg" alt="AI" style="width: 16px; height: 16px; margin-right: 4px;">
-          AI Assist
+          AI Assist <span class="premium-badge" style="margin-left:8px;">Premium</span>
         </button>
       </div>
 
@@ -193,6 +193,17 @@
   </div>
 
   <script src="./web-search.js"></script>
+  <!-- Upgrade modal (client-side demo) -->
+  <div id="upgrade-modal" class="modal" role="dialog" aria-modal="true">
+    <div class="panel">
+      <h3>Start your Premium Trial</h3>
+      <p>For demo purposes this starts a local trial (stored in your browser). For production integrate Stripe/Checkout.</p>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button id="start-trial" class="btn">Start Trial</button>
+        <button id="upgrade-close" class="btn btn-ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
   <script src="./ai-assist.js"></script>
   <script src="./ai-greeter.js"></script>
   <script src="./ai-chat.js"></script>
@@ -236,5 +247,6 @@
   <script src="./premium-system.js"></script>
   <script src="./spellcheck.js"></script>
   <script src="./theme-customizer.js"></script>
+  <script src="./premium.js"></script>
 </body>
 </html>

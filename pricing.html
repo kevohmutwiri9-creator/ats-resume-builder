@@ -1,6 +1,57 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pricing — ATS Resume Builder</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./ui-enhancements.css">
+</head>
+<body>
+  <header class="site-header"><div class="container"><a class="brand" href="./index.html">ATS Resume Builder</a></div></header>
+  <main class="container">
+    <section class="card">
+      <h1>Pricing</h1>
+      <p class="muted">Simple pricing. Start with a free tier and upgrade for advanced features.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Free</div>
+          <div class="card-body muted">Basic templates, local save, PDF export.</div>
+          <div class="card-actions">
+            <a class="btn" href="./builder.html">Start Free</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Premium <span class="premium-badge">Popular</span></div>
+          <div class="card-body muted">AI suggestions, keyword matcher, unlimited templates, priority support.</div>
+          <div class="card-actions">
+            <a class="btn premium-lock" href="#">Start 7‑day Trial</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Upgrade modal (client-side demo) -->
+  <div id="upgrade-modal" class="modal" role="dialog" aria-modal="true">
+    <div class="panel">
+      <h3>Start your Premium Trial</h3>
+      <p>For demo purposes this starts a local trial (stored in your browser). For production integrate Stripe/Checkout.</p>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button id="start-trial" class="btn">Start Trial</button>
+        <button id="upgrade-close" class="btn btn-ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./premium.js"></script>
+</body>
+</html>
+<!doctype html>
+<html lang="en">
+<head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: https://www.google-analytics.com; connect-src 'self' https://www.google-analytics.com https://ep1.adtrafficquality.google https://pagead2.googlesyndication.com; frame-src 'self' https://googleads.g.doubleclick.net; child-src 'self' https://googleads.g.doubleclick.net" />

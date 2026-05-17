@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Free ATS Checklist — ATS Resume Builder</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./ui-enhancements.css">
+</head>
+<body>
+  <main class="container">
+    <section class="card">
+      <h1>Free ATS Optimization Checklist</h1>
+      <p class="muted">Use this checklist to make sure your resume passes applicant tracking systems and reaches a real recruiter.</p>
+      <ol>
+        <li>Use standard headings: Experience, Education, Skills.</li>
+        <li>Avoid images, text boxes, headers/footers that break parsing.</li>
+        <li>Include role-specific keywords from the job description.</li>
+        <li>Use simple bullets, avoid tables and multi-column layouts.</li>
+        <li>Save and export as PDF using the builder's export feature.</li>
+        <li>Use conventional section ordering and clear dates.</li>
+        <li>Limit use of special characters and emojis.</li>
+      </ol>
+
+      <p>Download as a printable PDF using your browser's print dialog.</p>
+      <div class="lead-actions">
+        <button id="print-btn" class="btn">Print / Save as PDF</button>
+        <a class="btn btn-ghost" href="./index.html">Back to site</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById('print-btn').addEventListener('click', function(){
+      window.print();
+    });
+  </script>
+</body>
+</html>

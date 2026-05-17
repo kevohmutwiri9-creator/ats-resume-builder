@@ -1,3 +1,19 @@
+/* UI enhancements: modal, premium badge, lead magnet */
+.modal { display:none; position:fixed; left:0; top:0; right:0; bottom:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:9999; }
+.modal.visible { display:flex; }
+.modal .panel { background:#fff; padding:20px; max-width:480px; width:90%; border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.12); }
+.modal .panel h3 { margin-top:0; }
+.btn { display:inline-block; padding:10px 14px; background:#7c5cff; color:#fff; border-radius:6px; text-decoration:none; border:none; cursor:pointer; }
+.btn-ghost { background:transparent; color:#333; border:1px solid #ddd; }
+.premium-badge { background:linear-gradient(90deg,#ffb86b,#ff7a88); color:#fff; padding:4px 8px; border-radius:12px; font-size:12px; }
+.premium-lock { cursor:pointer; }
+
+.lead-actions { margin-top:16px; display:flex; gap:8px; }
+
+/* small responsive tweaks */
+@media (max-width:600px){
+  .modal .panel{ width:95%; }
+}
 /* UI/UX Enhancements for ATS Resume Builder */
 
 /* Enhanced form styling */
