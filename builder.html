@@ -39,6 +39,7 @@
 
       <div class="toolbar">
         <button class="btn btn-primary" id="exportPdfBtn" type="button">Export PDF</button>
+        <button class="btn btn-ghost" id="saveAsBtn" type="button">Save As…</button>
         <button class="btn btn-ghost" id="resetBtn" type="button">Reset</button>
         <button class="btn btn-ghost premium-lock" id="aiAssistBtn" type="button">
           <img src="./ai-icon.svg" alt="AI" style="width: 16px; height: 16px; margin-right: 4px;">
@@ -49,6 +50,11 @@
       <div class="field">
         <label>Resume Template</label>
         <div id="templateSelector" class="template-selector"></div>
+      </div>
+
+      <div class="saved-resumes">
+        <h3>My Resumes</h3>
+        <div id="savedResumes" class="saved-list muted tiny">No saved resumes yet.</div>
       </div>
 
       <div class="form-grid">

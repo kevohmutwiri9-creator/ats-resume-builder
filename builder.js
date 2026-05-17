@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'ats_resume_builder_v1';
+const SAVES_KEY = 'ats_saved_resumes_v1';
 
 const $ = (id) => document.getElementById(id);
 
@@ -253,6 +254,83 @@ function persist(state) {
       Utils.showError('Failed to save resume data');
     }
   }, 250);
+}
+
+// Saved resumes (named saves) helpers
+function listSavedResumes() {
+  try {
+    const raw = localStorage.getItem(SAVES_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    console.error('Failed to read saved resumes:', e);
+    return [];
+  }
+}
+
+function saveNamedResume(state) {
+  const name = prompt('Save a name for this resume:');
+  if (!name) return;
+  const saves = listSavedResumes();
+  const entry = { id: uid(), name: name.trim(), savedAt: Date.now(), state };
+  saves.unshift(entry);
+  try {
+    localStorage.setItem(SAVES_KEY, JSON.stringify(saves));
+    if (typeof Analytics !== 'undefined') Analytics.trackResumeBuilder('save_named', { name });
+    Utils.showSuccess('Resume saved locally');
+    renderSavedResumes(state);
+  } catch (e) {
+    console.error('Save named resume failed:', e);
+    Utils.showError('Failed to save resume');
+  }
+}
+
+function loadSavedResume(state, id) {
+  const saves = listSavedResumes();
+  const entry = saves.find(s => s.id === id);
+  if (!entry) return Utils.showError('Saved resume not found');
+  Object.assign(state, entry.state);
+  bindBasicFields(state);
+  persist(state);
+  render(state);
+  if (typeof Analytics !== 'undefined') Analytics.trackResumeBuilder('load_named', { name: entry.name });
+  Utils.showSuccess(`Loaded "${entry.name}"`);
+}
+
+function deleteSavedResume(state, id) {
+  let saves = listSavedResumes();
+  const entry = saves.find(s => s.id === id);
+  if (!entry) return;
+  saves = saves.filter(s => s.id !== id);
+  localStorage.setItem(SAVES_KEY, JSON.stringify(saves));
+  renderSavedResumes(state);
+  if (typeof Analytics !== 'undefined') Analytics.trackResumeBuilder('delete_named', { name: entry.name });
+}
+
+function renderSavedResumes(state) {
+  const container = $('savedResumes');
+  if (!container) return;
+  const saves = listSavedResumes();
+  if (!saves.length) {
+    container.textContent = 'No saved resumes yet.';
+    return;
+  }
+  container.innerHTML = saves.map(s => {
+    const date = new Date(s.savedAt).toLocaleString();
+    return `<div class="saved-item" data-id="${s.id}"><strong>${escapeHtml(s.name)}</strong> <span class="tiny muted">${date}</span> <div class="saved-actions"><button class="btn btn-ghost" data-act="load">Load</button> <button class="btn btn-ghost" data-act="del">Delete</button></div></div>`;
+  }).join('');
+
+  container.querySelectorAll('button[data-act]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const act = btn.getAttribute('data-act');
+      const item = btn.closest('.saved-item');
+      const id = item.getAttribute('data-id');
+      if (act === 'load') loadSavedResume(state, id);
+      if (act === 'del') {
+        const ok = confirm('Delete saved resume?');
+        if (ok) deleteSavedResume(state, id);
+      }
+    });
+  });
 }
 
 function renderContact(state) {
@@ -587,6 +665,17 @@ function attachButtons(state) {
       Utils.showError('Failed to reset resume');
     }
   });
+
+  // Save as named resume
+  const saveAsBtn = $('saveAsBtn');
+  if (saveAsBtn) {
+    saveAsBtn.addEventListener('click', () => {
+      saveNamedResume(state);
+    });
+  }
+
+  // Render any saved resumes list
+  renderSavedResumes(state);
 }
 
 // Template switching functionality

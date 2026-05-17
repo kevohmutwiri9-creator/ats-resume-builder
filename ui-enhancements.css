@@ -14,6 +14,10 @@
 @media (max-width:600px){
   .modal .panel{ width:95%; }
 }
+
+.saved-list .saved-item { padding:8px 0; border-bottom:1px solid #f1f1f1; display:flex; justify-content:space-between; align-items:center; }
+.saved-list .saved-actions { display:flex; gap:8px; }
+.saved-list .saved-item .tiny { margin-left:8px; color:#666; }
 /* UI/UX Enhancements for ATS Resume Builder */
 
 /* Enhanced form styling */
