@@ -92,17 +92,24 @@
       if(!cfg.enabled) return;
       if(!cfg.publisherId) return;
 
-      if(window.__ADSENSE_LOADED__) return;
+      if(window.__ADSENSE_LOADED__ || window.adsbygoogle) return;
       window.__ADSENSE_LOADED__=true;
 
       var qs='client='+encodeURIComponent(cfg.publisherId);
       loadScript('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?'+qs, function(){
         window.adsbygoogle = window.adsbygoogle || [];
-        window.adsbygoogle.push({});
+        if (cfg.autoAds) {
+          window.adsbygoogle.push({
+            google_ad_client: cfg.publisherId,
+            enable_page_level_ads: true
+          });
+        } else {
+          window.adsbygoogle.push({});
+        }
       });
 
       document.querySelectorAll('.ad-box').forEach(function(el){
-        el.textContent='Ads enabled';
+        el.textContent='Auto Ads enabled';
       });
     }
 

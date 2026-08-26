@@ -1,10 +1,13 @@
 // Google AdSense Configuration
+// Best practice for compliance and placement: use page-level Auto ads on quality content pages.
 window.adsenseConfig = {
   publisherId: 'ca-pub-2396098605485959',
   enabled: true,
   testMode: false,
+  autoAds: true,
+  allowManualFallback: false,
   adSlots: {
-    // Responsive ad units
+    // Left in place as legacy fallback only; priority is page-level Auto ads.
     'top-banner': {
       style: 'display:block',
       format: 'auto',
