@@ -307,8 +307,9 @@ window.APP = {
 
   // Setup examples page
   setupExamplesPage: function() {
-    // Add example search
-    this.setupExampleSearch();
+    if (window.ResumeExamples && typeof window.ResumeExamples.initExamplesPage === 'function') {
+      window.ResumeExamples.initExamplesPage();
+    }
   },
 
   // Setup real-time preview

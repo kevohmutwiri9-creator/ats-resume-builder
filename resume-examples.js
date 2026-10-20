@@ -571,9 +571,9 @@ window.ResumeExamples = {
     });
 
     // Display results
-    searchResultsList.innerHTML = Object.keys(resultsByIndustry).map(industry => {
-      const industry = this.industries[industry];
-      const industryResults = resultsByIndustry[industry];
+    searchResultsList.innerHTML = Object.keys(resultsByIndustry).map(industryKey => {
+      const industry = this.industries[industryKey];
+      const industryResults = resultsByIndustry[industryKey];
       
       return `
         <div class="result-item">

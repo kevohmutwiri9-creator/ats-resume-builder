@@ -29,48 +29,14 @@
     document.head.appendChild(meta);
   }
 
-  var CONSENT_KEY='site_consent_v1';
   function getConsent(){
     try{
-      var v=localStorage.getItem(CONSENT_KEY);
-      if(!v) return null;
-      return JSON.parse(v);
+      var value=localStorage.getItem('cookieConsent');
+      if(!value) return null;
+      var consent=JSON.parse(value);
+      if(!consent.categories) return null;
+      return { ads: Boolean(consent.categories.marketing) };
     }catch{return null;}
-  }
-
-  function setConsent(value){
-    try{localStorage.setItem(CONSENT_KEY, JSON.stringify(value));}catch{}
-  }
-
-  function showConsentBanner(){
-    if(document.getElementById('consentBanner')) return;
-    var wrap=document.createElement('div');
-    wrap.className='consent';
-    wrap.id='consentBanner';
-    wrap.innerHTML =
-      '<div class="consent-inner">'
-      + '<div>'
-      + '<div class="consent-title">Cookies & ads</div>'
-      + '<div class="muted tiny">We use cookies for basic functionality and may load Google AdSense after consent. See <a href="'+pathFor('privacy.html')+'">Privacy</a>.</div>'
-      + '</div>'
-      + '<div class="consent-actions">'
-      + '<button class="btn btn-ghost" type="button" id="consentReject">Reject</button>'
-      + '<button class="btn btn-primary" type="button" id="consentAccept">Accept</button>'
-      + '</div>'
-      + '</div>';
-
-    document.body.appendChild(wrap);
-    wrap.style.display='block';
-
-    document.getElementById('consentReject').addEventListener('click', function(){
-      setConsent({ ads: false, ts: Date.now() });
-      wrap.remove();
-    });
-    document.getElementById('consentAccept').addEventListener('click', function(){
-      setConsent({ ads: true, ts: Date.now() });
-      wrap.remove();
-      tryLoadAdsense();
-    });
   }
 
   function loadScript(src, onload){
@@ -88,57 +54,47 @@
     if(!consent || !consent.ads) return;
 
     function start(){
-      var cfg=window.ADSENSE_CONFIG || { enabled:false };
-      if(!cfg.enabled) return;
-      if(!cfg.publisherId) return;
-
-      if(window.__ADSENSE_LOADED__ || window.adsbygoogle) return;
-      window.__ADSENSE_LOADED__=true;
-
-      var qs='client='+encodeURIComponent(cfg.publisherId);
-      loadScript('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?'+qs, function(){
-        window.adsbygoogle = window.adsbygoogle || [];
-        if (cfg.autoAds) {
-          window.adsbygoogle.push({
-            google_ad_client: cfg.publisherId,
-            enable_page_level_ads: true
-          });
-        } else {
-          window.adsbygoogle.push({});
+      var cfg=window.ADSENSE_CONFIG;
+      if(!cfg || !cfg.enabled || !cfg.publisherId) return;
+      if(window.__ADSENSE_LOADED__ || window.__ADSENSE_LOADING__) return;
+      window.__ADSENSE_LOADING__=true;
+      ensureAdsenseMeta();
+      var src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+encodeURIComponent(cfg.publisherId);
+      loadScript(src, function(error){
+        window.__ADSENSE_LOADING__=false;
+        if(error){
+          console.error('Failed to load Google AdSense.');
+          return;
         }
-      });
-
-      document.querySelectorAll('.ad-box').forEach(function(el){
-        el.textContent='Auto Ads enabled';
+        window.__ADSENSE_LOADED__=true;
+        window.adsbygoogle = window.adsbygoogle || [];
+        if(cfg.autoAds){
+          window.adsbygoogle.push({ google_ad_client: cfg.publisherId, enable_page_level_ads: true });
+        }
       });
     }
 
     if(window.ADSENSE_CONFIG){
-      ensureAdsenseMeta();
       start();
-      return;
+    }else if(!window.__ADSENSE_CONFIG_LOADING__){
+      window.__ADSENSE_CONFIG_LOADING__=true;
+      loadScript(pathFor('adsense-config.js'), function(error){
+        window.__ADSENSE_CONFIG_LOADING__=false;
+        if(error){
+          console.error('Failed to load AdSense configuration.');
+          return;
+        }
+        start();
+      });
     }
-
-    loadScript(pathFor('adsense-config.js'), function(){
-      ensureAdsenseMeta();
-      start();
-    });
   }
 
   ensureFavicon();
-
-  if(window.ADSENSE_CONFIG){
-    ensureAdsenseMeta();
-  } else {
-    loadScript(pathFor('adsense-config.js'), function(){
-      ensureAdsenseMeta();
-    });
-  }
-
-  var consent=getConsent();
-  if(!consent){
-    showConsentBanner();
-  } else {
-    tryLoadAdsense();
-  }
+  window.addEventListener('cookieConsentGiven', tryLoadAdsense);
+  window.addEventListener('cookieConsentUpdated', function(event){
+    if(event.detail && event.detail.categories && event.detail.categories.marketing){
+      tryLoadAdsense();
+    }
+  });
+  tryLoadAdsense();
 })();
