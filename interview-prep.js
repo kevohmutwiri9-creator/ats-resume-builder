@@ -181,8 +181,7 @@ window.InterviewPrep = {
         followUp: 'What would you like to know about the team?',
         tips: 'Ask about team culture, growth opportunities, and day-to-day responsibilities.'
       }
-    ]
-  ],
+    ],
 
   // Mock interview simulator
   startMockInterview: function(type = 'behavioral') {

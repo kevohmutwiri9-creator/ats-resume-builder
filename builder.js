@@ -1,91 +1,20 @@
 const STORAGE_KEY = 'ats_resume_builder_v1';
 const SAVES_KEY = 'ats_saved_resumes_v1';
+const {
+  normalizeText,
+  resumeToPlainText,
+  defaultState,
+  mergeState,
+  readSavedResumes,
+  prependSavedResume,
+  removeSavedResume,
+  applySavedResume
+} = ResumeData;
 
 const $ = (id) => document.getElementById(id);
 
 function uid() {
   return Math.random().toString(16).slice(2) + Date.now().toString(16);
-}
-
-function normalizeText(s) {
-  return (s || '').replace(/\s+/g, ' ').trim();
-}
-
-function resumeToPlainText(state) {
-  const parts = [];
-  const contact = [state.email, state.phone, state.location, state.links].filter(Boolean).join(' | ');
-  parts.push(normalizeText(state.fullName));
-  parts.push(normalizeText(state.headline));
-  parts.push(contact);
-  parts.push('');
-  if (state.summary) {
-    parts.push('SUMMARY');
-    parts.push(normalizeText(state.summary));
-    parts.push('');
-  }
-  if (state.experience?.length) {
-    parts.push('EXPERIENCE');
-    for (const e of state.experience) {
-      parts.push([e.role, e.company].filter(Boolean).join(' - '));
-      parts.push([e.location, e.start, e.end].filter(Boolean).join(' | '));
-      for (const b of (e.bullets || [])) parts.push('- ' + normalizeText(b));
-      parts.push('');
-    }
-  }
-  if (state.education?.length) {
-    parts.push('EDUCATION');
-    for (const ed of state.education) {
-      parts.push([ed.degree, ed.school].filter(Boolean).join(' - '));
-      parts.push([ed.location, ed.start, ed.end].filter(Boolean).join(' | '));
-      if (ed.details) parts.push(normalizeText(ed.details));
-      parts.push('');
-    }
-  }
-  if (state.skills?.length) {
-    parts.push('SKILLS');
-    parts.push(state.skills.map(normalizeText).filter(Boolean).join(', '));
-  }
-  return parts.join('\n');
-}
-
-function defaultState() {
-  return {
-    template: 'clean',
-    fullName: '',
-    headline: '',
-    email: '',
-    phone: '',
-    location: '',
-    links: '',
-    summary: '',
-    experience: [
-      {
-        id: uid(),
-        role: 'Software Engineer',
-        company: 'Company Name',
-        location: 'City',
-        start: '2023',
-        end: 'Present',
-        bullets: [
-          'Built features that improved conversion by 18% using A/B testing and analytics.',
-          'Optimized API response times by 35% by caching and query tuning (PostgreSQL).',
-          'Collaborated with product and design to ship weekly releases with high quality.'
-        ]
-      }
-    ],
-    education: [
-      {
-        id: uid(),
-        degree: 'BSc Computer Science',
-        school: 'University Name',
-        location: 'City',
-        start: '2019',
-        end: '2023',
-        details: ''
-      }
-    ],
-    skills: ['JavaScript', 'TypeScript', 'Node.js', 'React', 'PostgreSQL']
-  };
 }
 
 // Template configurations
@@ -119,7 +48,7 @@ const TEMPLATES = {
 function loadState() {
   try {
     const state = Utils.getStorage(STORAGE_KEY);
-    return state ? { ...defaultState(), ...state } : defaultState();
+    return mergeState(defaultState(), state);
   } catch (error) {
     console.error('Failed to load state:', error);
     return defaultState();
@@ -209,9 +138,10 @@ function bindBasicFields(state) {
     ['summary', 'summary']
   ];
 
+  syncBasicFields(state, map);
+
   for (const [id, key, type] of map) {
     const el = $(id);
-    el.value = state[key] || '';
     el.addEventListener('input', () => {
       const value = el.value;
       if (type && !validateField(id, value, type)) {
@@ -226,13 +156,29 @@ function bindBasicFields(state) {
 
   const tmpl = $('template');
   if (tmpl) {
-    tmpl.value = state.template || 'clean';
     tmpl.addEventListener('change', () => {
       state.template = tmpl.value;
       persist(state);
       render(state);
     });
   }
+}
+
+function syncBasicFields(state, map = [
+  ['fullName', 'fullName'],
+  ['headline', 'headline'],
+  ['email', 'email', 'email'],
+  ['phone', 'phone', 'phone'],
+  ['location', 'location'],
+  ['links', 'links'],
+  ['summary', 'summary']
+]) {
+  for (const [id, key] of map) {
+    const el = $(id);
+    if (el) el.value = state[key] || '';
+  }
+  const tmpl = $('template');
+  if (tmpl) tmpl.value = state.template || 'clean';
 }
 
 let persistTimer = null;
@@ -259,8 +205,7 @@ function persist(state) {
 // Saved resumes (named saves) helpers
 function listSavedResumes() {
   try {
-    const raw = localStorage.getItem(SAVES_KEY);
-    return raw ? JSON.parse(raw) : [];
+    return readSavedResumes(localStorage, SAVES_KEY);
   } catch (e) {
     console.error('Failed to read saved resumes:', e);
     return [];
@@ -270,11 +215,11 @@ function listSavedResumes() {
 function saveNamedResume(state) {
   const name = prompt('Save a name for this resume:');
   if (!name) return;
-  const saves = listSavedResumes();
-  const entry = { id: uid(), name: name.trim(), savedAt: Date.now(), state };
-  saves.unshift(entry);
+  const trimmedName = name.trim();
+  if (!trimmedName) return;
+  const entry = { id: uid(), name: trimmedName, savedAt: Date.now(), state };
   try {
-    localStorage.setItem(SAVES_KEY, JSON.stringify(saves));
+    prependSavedResume(localStorage, SAVES_KEY, entry);
     if (typeof Analytics !== 'undefined') Analytics.trackResumeBuilder('save_named', { name });
     Utils.showSuccess('Resume saved locally');
     renderSavedResumes(state);
@@ -288,8 +233,10 @@ function loadSavedResume(state, id) {
   const saves = listSavedResumes();
   const entry = saves.find(s => s.id === id);
   if (!entry) return Utils.showError('Saved resume not found');
-  Object.assign(state, entry.state);
-  bindBasicFields(state);
+  if (!applySavedResume(state, entry, defaultState)) {
+    return Utils.showError('Saved resume is invalid');
+  }
+  syncBasicFields(state);
   persist(state);
   render(state);
   if (typeof Analytics !== 'undefined') Analytics.trackResumeBuilder('load_named', { name: entry.name });
@@ -297,13 +244,16 @@ function loadSavedResume(state, id) {
 }
 
 function deleteSavedResume(state, id) {
-  let saves = listSavedResumes();
-  const entry = saves.find(s => s.id === id);
+  const entry = listSavedResumes().find(s => s.id === id);
   if (!entry) return;
-  saves = saves.filter(s => s.id !== id);
-  localStorage.setItem(SAVES_KEY, JSON.stringify(saves));
-  renderSavedResumes(state);
-  if (typeof Analytics !== 'undefined') Analytics.trackResumeBuilder('delete_named', { name: entry.name });
+  try {
+    removeSavedResume(localStorage, SAVES_KEY, id);
+    renderSavedResumes(state);
+    if (typeof Analytics !== 'undefined') Analytics.trackResumeBuilder('delete_named', { name: entry.name });
+  } catch (error) {
+    console.error('Delete named resume failed:', error);
+    Utils.showError('Failed to delete resume');
+  }
 }
 
 function renderSavedResumes(state) {
@@ -316,7 +266,7 @@ function renderSavedResumes(state) {
   }
   container.innerHTML = saves.map(s => {
     const date = new Date(s.savedAt).toLocaleString();
-    return `<div class="saved-item" data-id="${s.id}"><strong>${escapeHtml(s.name)}</strong> <span class="tiny muted">${date}</span> <div class="saved-actions"><button class="btn btn-ghost" data-act="load">Load</button> <button class="btn btn-ghost" data-act="del">Delete</button></div></div>`;
+    return `<div class="saved-item" data-id="${escapeAttr(s.id)}"><strong>${escapeHtml(s.name)}</strong> <span class="tiny muted">${date}</span> <div class="saved-actions"><button class="btn btn-ghost" data-act="load">Load</button> <button class="btn btn-ghost" data-act="del">Delete</button></div></div>`;
   }).join('');
 
   container.querySelectorAll('button[data-act]').forEach(btn => {
@@ -652,7 +602,7 @@ function attachButtons(state) {
       Utils.removeStorage('ats_resume_plaintext_v1');
       const fresh = defaultState();
       Object.assign(state, fresh);
-      bindBasicFields(state);
+      syncBasicFields(state);
       persist(state);
       render(state);
       Utils.showSuccess('Resume reset to defaults');
@@ -679,7 +629,7 @@ function attachButtons(state) {
 }
 
 // Template switching functionality
-function switchTemplate(templateKey) {
+function switchTemplate(templateKey, state) {
   const template = TEMPLATES[templateKey];
   if (!template) return;
 
@@ -714,10 +664,10 @@ function switchTemplate(templateKey) {
     Analytics.trackTemplate(template.name, 'switch');
   }
 
-  showToast(`Switched to ${template.name} template`, 'success');
+  Utils.showToast(`Switched to ${template.name} template`, 'success');
 }
 
-function renderTemplateSelector() {
+function renderTemplateSelector(state) {
   const selector = $('templateSelector');
   if (!selector) return;
 
@@ -748,7 +698,7 @@ function renderTemplateSelector() {
   selector.querySelectorAll('.template-option').forEach(option => {
     option.addEventListener('click', () => {
       const templateKey = option.getAttribute('data-template');
-      switchTemplate(templateKey);
+      switchTemplate(templateKey, state);
       
       // Update active state
       selector.querySelectorAll('.template-option').forEach(opt => {
@@ -764,6 +714,6 @@ function renderTemplateSelector() {
   bindBasicFields(state);
   attachButtons(state);
   render(state);
-  renderTemplateSelector();
+  renderTemplateSelector(state);
   setSaveStatus('Saved');
 })();

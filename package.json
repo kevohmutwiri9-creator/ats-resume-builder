@@ -4,18 +4,33 @@
   "description": "ATS Resume Builder - A modern resume builder with AI assistance",
   "main": "index.html",
   "scripts": {
-    "start": "serve -s . -l 10000",
-    "build": "echo 'Static build complete'",
-    "vercel-build": "echo 'Static build complete'"
+    "start": "serve . -l 10000",
+    "test": "node --test",
+    "lint": "eslint builder.js resume-data.js resume-import.js test scripts eslint.config.js && node scripts/check-js-syntax.js",
+    "build": "node scripts/validate-site.js",
+    "check": "npm run lint && npm test && npm run build",
+    "vercel-build": "npm run check"
   },
   "dependencies": {
     "serve": "^14.2.1"
   },
+  "overrides": {
+    "compression": "^1.8.2"
+  },
   "engines": {
     "node": "22"
   },
-  "keywords": ["resume", "ats", "builder", "static-site", "frontend"],
+  "keywords": [
+    "resume",
+    "ats",
+    "builder",
+    "static-site",
+    "frontend"
+  ],
   "license": "MIT",
   "homepage": "https://my-ats-resume-builder.vercel.app/",
-  "buildTime": "2025-01-24T13:55:00Z"
+  "buildTime": "2025-01-24T13:55:00Z",
+  "devDependencies": {
+    "eslint": "^10.13.0"
+  }
 }

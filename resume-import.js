@@ -27,20 +27,16 @@ class ResumeImporter {
           <div class="import-options">
             <div class="import-option">
               <h4>📄 PDF Resume</h4>
-              <p>Upload a PDF resume to extract text and populate fields</p>
+              <p>PDF text extraction requires PDF.js, which is not configured here. Copy and paste the resume text instead.</p>
               <input type="file" id="pdfInput" accept=".pdf" style="display: none;">
-              <button class="btn btn-primary" onclick="document.getElementById('pdfInput').click()">
+              <button class="btn btn-primary" ${typeof pdfjsLib === 'undefined' ? 'disabled' : ''} onclick="document.getElementById('pdfInput').click()">
                 Choose PDF File
               </button>
             </div>
             
             <div class="import-option">
-              <h4>💼 LinkedIn Profile</h4>
-              <p>Import from LinkedIn URL (requires manual data entry)</p>
-              <input type="url" id="linkedinUrl" placeholder="https://linkedin.com/in/yourprofile">
-              <button class="btn btn-primary" onclick="resumeImporter.importFromLinkedIn()">
-                Import from LinkedIn
-              </button>
+              <h4>LinkedIn profile</h4>
+              <p>Direct profile import is not supported. Copy your profile details and paste them into the text importer.</p>
             </div>
             
             <div class="import-option">
@@ -115,7 +111,6 @@ class ResumeImporter {
 
   resetModal() {
     document.getElementById('pdfInput').value = '';
-    document.getElementById('linkedinUrl').value = '';
     document.getElementById('resumeText').value = '';
     document.getElementById('importResults').style.display = 'none';
     this.importedData = null;
@@ -152,13 +147,11 @@ class ResumeImporter {
   }
 
   async extractPDFText(file) {
-    // Use PDF.js library if available, otherwise fallback to simple text extraction
+    // PDF.js is optional; without it, ask users to use the text importer.
     if (typeof pdfjsLib !== 'undefined') {
       return await this.extractWithPDFJS(file);
-    } else {
-      // Fallback: create a simple text extraction prompt
-      return await this.extractPDFWithServer(file);
     }
+    throw new Error('PDF text extraction is unavailable. Please copy and paste the resume text instead.');
   }
 
   async extractWithPDFJS(file) {
@@ -176,103 +169,12 @@ class ResumeImporter {
     return fullText;
   }
 
-  async extractPDFWithServer(file) {
-    // In a real implementation, you'd send the file to a server
-    // For now, we'll simulate this with a prompt
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const simulatedText = `
-John Doe
-Software Engineer
-Email: john.doe@email.com | Phone: (555) 123-4567 | Location: San Francisco, CA
-
-SUMMARY
-Experienced software engineer with 5+ years in full-stack development. 
-Proficient in React, Node.js, and cloud technologies.
-
-EXPERIENCE
-Senior Software Engineer | Tech Corp | 2020-Present
-- Developed and maintained web applications using React and Node.js
-- Improved application performance by 40% through optimization
-- Led a team of 3 junior developers
-
-Software Engineer | Startup Inc | 2018-2020
-- Built RESTful APIs and microservices
-- Implemented CI/CD pipelines
-- Collaborated with cross-functional teams
-
-EDUCATION
-Bachelor of Science in Computer Science
-University of California, Berkeley | 2014-2018
-
-SKILLS
-JavaScript, React, Node.js, Python, AWS, Docker, PostgreSQL, Git
-        `;
-        resolve(simulatedText);
-      }, 2000);
-    });
-  }
-
-  importFromLinkedIn() {
-    const url = document.getElementById('linkedinUrl').value.trim();
-    if (!url) {
-      this.showError('Please enter a LinkedIn profile URL');
-      return;
-    }
-
-    if (!url.includes('linkedin.com/in/')) {
-      this.showError('Please enter a valid LinkedIn profile URL');
-      return;
-    }
-
-    this.showLoading();
-
-    // Extract profile name from URL
-    const profileName = url.split('/in/')[1]?.split('?')[0]?.replace(/-/g, ' ');
-    
-    // Simulate LinkedIn import (in real implementation, you'd use LinkedIn API)
-    setTimeout(() => {
-      const mockData = {
-        fullName: profileName ? profileName.charAt(0).toUpperCase() + profileName.slice(1) : 'LinkedIn User',
-        headline: 'Software Engineer at Tech Company',
-        summary: 'Experienced software engineer with a passion for building scalable applications and leading cross-functional teams.',
-        experience: [
-          {
-            role: 'Senior Software Engineer',
-            company: 'Tech Company',
-            location: 'San Francisco Bay Area',
-            start: '2020',
-            end: 'Present',
-            bullets: [
-              'Leading development of enterprise-scale applications',
-              'Mentoring junior developers and conducting code reviews',
-              'Collaborating with product teams to define technical requirements'
-            ]
-          }
-        ],
-        education: [
-          {
-            degree: 'Bachelor of Science in Computer Science',
-            school: 'University Name',
-            location: 'City, State',
-            start: '2016',
-            end: '2020'
-          }
-        ],
-        skills: ['JavaScript', 'React', 'Node.js', 'Python', 'AWS', 'Docker', 'PostgreSQL']
-      };
-
-      this.displayImportResults(mockData);
-      this.hideLoading();
-      
-      if (typeof Analytics !== 'undefined') {
-        Analytics.trackImport('LinkedIn', 'success');
-      }
-    }, 1500);
-  }
-
   parseResumeText(text) {
-    const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+    if (typeof text !== 'string') {
+      throw new TypeError('Resume text must be a string.');
+    }
+
+    const lines = text.split(/\r?\n/).map(line => line.replace(/\s+/g, ' ').trim()).filter(Boolean);
     const data = {
       fullName: '',
       headline: '',
@@ -294,16 +196,16 @@ JavaScript, React, Node.js, Python, AWS, Docker, PostgreSQL, Git
       const upperLine = line.toUpperCase();
 
       // Detect sections
-      if (upperLine.includes('SUMMARY') || upperLine.includes('PROFILE') || upperLine.includes('OBJECTIVE')) {
+      if (/^(?:PROFESSIONAL\s+)?(?:SUMMARY|PROFILE|OBJECTIVE)$/.test(upperLine)) {
         currentSection = 'summary';
         continue;
-      } else if (upperLine.includes('EXPERIENCE') || upperLine.includes('WORK') || upperLine.includes('EMPLOYMENT')) {
+      } else if (/^(?:PROFESSIONAL\s+)?(?:EXPERIENCE|WORK(?:\s+EXPERIENCE|\s+HISTORY)?|EMPLOYMENT(?:\s+HISTORY)?)$/.test(upperLine)) {
         currentSection = 'experience';
         continue;
-      } else if (upperLine.includes('EDUCATION') || upperLine.includes('ACADEMIC')) {
+      } else if (/^(?:EDUCATION|ACADEMIC(?:\s+BACKGROUND)?)$/.test(upperLine)) {
         currentSection = 'education';
         continue;
-      } else if (upperLine.includes('SKILLS') || upperLine.includes('TECHNICAL') || upperLine.includes('COMPETENCIES')) {
+      } else if (/^(?:SKILLS|TECHNICAL\s+SKILLS|COMPETENCIES)$/.test(upperLine)) {
         currentSection = 'skills';
         continue;
       }
@@ -333,9 +235,13 @@ JavaScript, React, Node.js, Python, AWS, Docker, PostgreSQL, Git
           } else if (currentExperience && line.includes('|')) {
             const parts = line.split('|').map(p => p.trim());
             if (parts.length >= 2) {
-              currentExperience.company = parts[0];
-              const dates = parts[1];
-              this.parseDates(dates, currentExperience);
+              const dateParts = parts.filter(part => /\d{4}|present|current/i.test(part));
+              if (dateParts.length) {
+                this.parseDates(dateParts.join(' '), currentExperience);
+                currentExperience.location = parts.filter(part => !dateParts.includes(part)).join(' | ') || currentExperience.location;
+              } else {
+                currentExperience.company = parts[0];
+              }
             }
           } else if (currentExperience && line.startsWith('-')) {
             currentExperience.bullets.push(line.substring(1).trim());
@@ -360,8 +266,13 @@ JavaScript, React, Node.js, Python, AWS, Docker, PostgreSQL, Git
           } else if (currentEducation && line.includes('|')) {
             const parts = line.split('|').map(p => p.trim());
             if (parts.length >= 2) {
-              currentEducation.school = parts[0];
-              this.parseDates(parts[1], currentEducation);
+              const dateParts = parts.filter(part => /\d{4}|present|current/i.test(part));
+              if (dateParts.length) {
+                this.parseDates(dateParts.join(' '), currentEducation);
+                currentEducation.location = parts.filter(part => !dateParts.includes(part)).join(' | ') || currentEducation.location;
+              } else {
+                currentEducation.school = parts[0];
+              }
             }
           }
           break;
@@ -382,7 +293,7 @@ JavaScript, React, Node.js, Python, AWS, Docker, PostgreSQL, Git
           } else if (!data.headline && this.looksLikeHeadline(line)) {
             data.headline = line;
           } else if (line.includes('@') && !data.email) {
-            data.email = line;
+            data.email = line.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)?.[0] || '';
           } else if (this.looksLikePhone(line) && !data.phone) {
             data.phone = line;
           } else if (this.looksLikeLocation(line) && !data.location) {
@@ -453,6 +364,12 @@ JavaScript, React, Node.js, Python, AWS, Docker, PostgreSQL, Git
     this.importedData = data;
     const resultsDiv = document.getElementById('importResults');
     const previewDiv = document.getElementById('importPreview');
+    const escapeHtml = value => String(value || '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
 
     let previewHTML = '<div class="import-grid">';
 
@@ -460,11 +377,11 @@ JavaScript, React, Node.js, Python, AWS, Docker, PostgreSQL, Git
     previewHTML += `
       <div class="import-section">
         <h5>Basic Information</h5>
-        <p><strong>Name:</strong> ${data.fullName || 'Not found'}</p>
-        <p><strong>Headline:</strong> ${data.headline || 'Not found'}</p>
-        <p><strong>Email:</strong> ${data.email || 'Not found'}</p>
-        <p><strong>Phone:</strong> ${data.phone || 'Not found'}</p>
-        <p><strong>Location:</strong> ${data.location || 'Not found'}</p>
+        <p><strong>Name:</strong> ${escapeHtml(data.fullName || 'Not found')}</p>
+        <p><strong>Headline:</strong> ${escapeHtml(data.headline || 'Not found')}</p>
+        <p><strong>Email:</strong> ${escapeHtml(data.email || 'Not found')}</p>
+        <p><strong>Phone:</strong> ${escapeHtml(data.phone || 'Not found')}</p>
+        <p><strong>Location:</strong> ${escapeHtml(data.location || 'Not found')}</p>
       </div>
     `;
 
@@ -473,7 +390,7 @@ JavaScript, React, Node.js, Python, AWS, Docker, PostgreSQL, Git
       previewHTML += `
         <div class="import-section">
           <h5>Summary</h5>
-          <p>${data.summary}</p>
+          <p>${escapeHtml(data.summary)}</p>
         </div>
       `;
     }
@@ -484,8 +401,8 @@ JavaScript, React, Node.js, Python, AWS, Docker, PostgreSQL, Git
       data.experience.forEach(exp => {
         previewHTML += `
           <div class="import-item">
-            <strong>${exp.role}</strong> at ${exp.company}
-            ${exp.bullets.length > 0 ? `<ul>${exp.bullets.map(b => `<li>${b}</li>`).join('')}</ul>` : ''}
+            <strong>${escapeHtml(exp.role)}</strong> at ${escapeHtml(exp.company)}
+            ${exp.bullets.length > 0 ? `<ul>${exp.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('')}</ul>` : ''}
           </div>
         `;
       });
@@ -498,7 +415,7 @@ JavaScript, React, Node.js, Python, AWS, Docker, PostgreSQL, Git
       data.education.forEach(edu => {
         previewHTML += `
           <div class="import-item">
-            <strong>${edu.degree}</strong> from ${edu.school}
+            <strong>${escapeHtml(edu.degree)}</strong> from ${escapeHtml(edu.school)}
           </div>
         `;
       });
@@ -511,7 +428,7 @@ JavaScript, React, Node.js, Python, AWS, Docker, PostgreSQL, Git
         <div class="import-section">
           <h5>Skills</h5>
           <div class="skill-chips">
-            ${data.skills.map(skill => `<span class="skill-chip">${skill}</span>`).join('')}
+            ${data.skills.map(skill => `<span class="skill-chip">${escapeHtml(skill)}</span>`).join('')}
           </div>
         </div>
       `;
@@ -685,7 +602,11 @@ JavaScript, React, Node.js, Python, AWS, Docker, PostgreSQL, Git
 }
 
 // Initialize resume importer
-let resumeImporter;
-document.addEventListener('DOMContentLoaded', () => {
-  resumeImporter = new ResumeImporter();
-});
+if (typeof document !== 'undefined') {
+  let resumeImporter;
+  document.addEventListener('DOMContentLoaded', () => {
+    resumeImporter = new ResumeImporter();
+  });
+}
+
+globalThis.ResumeImporter = ResumeImporter;

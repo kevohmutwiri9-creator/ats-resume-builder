@@ -1,0 +1,33 @@
+{
+  "notice": "Entirely fictional test fixture. Contains no real person's data.",
+  "text": "Jordan Example\nProduct Engineer\njordan@example.test\n+1 (555) 010-2000\nNairobi, Kenya\n\nSUMMARY\nBuilds reliable web tools with clear interfaces.\n\nEXPERIENCE\nProduct Engineer\nExample Labs\nNairobi | 2022 | Present\n- Improved fictional test workflows.\n\nEDUCATION\nBachelor of Science in Computing\nExample University\nNairobi | 2020 | 2022\n\nSKILLS\nJavaScript, Node.js, Testing, JavaScript",
+  "expected": {
+    "fullName": "Jordan Example",
+    "headline": "Product Engineer",
+    "email": "jordan@example.test",
+    "phone": "+1 (555) 010-2000",
+    "location": "Nairobi, Kenya",
+    "summary": "Builds reliable web tools with clear interfaces.",
+    "experience": [
+      {
+        "role": "Product Engineer",
+        "company": "Example Labs",
+        "location": "Nairobi",
+        "start": "2022",
+        "end": "Present",
+        "bullets": ["Improved fictional test workflows."]
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science in Computing",
+        "school": "Example University",
+        "location": "Nairobi",
+        "start": "2020",
+        "end": "2022",
+        "details": ""
+      }
+    ],
+    "skills": ["JavaScript", "Node.js", "Testing"]
+  }
+}

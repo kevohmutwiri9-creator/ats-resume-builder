@@ -1,6 +1,6 @@
 // Service Worker for PWA functionality
-const CACHE_NAME = 'ats-resume-builder-v3';
-const VERSION = '3.0.0';
+const CACHE_NAME = 'ats-resume-builder-v5';
+const VERSION = '5.0.0';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -22,6 +22,7 @@ const urlsToCache = [
   '/templates-executive.css',
   '/templates-creative.css',
   '/site.js',
+  '/resume-data.js',
   '/builder.js',
   '/ai-assist.js',
   '/ai-greeter.js',
